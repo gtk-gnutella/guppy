@@ -1,0 +1,53 @@
+				   Guppy 1.2
+
+guppy is a tool to send a UDP ping to Gnutella servents. To compile guppy
+just run "make". If the compile process succeeds, you'll find the executable
+guppy in the "src" directory. To ping a host, run guppy like this:
+
+	$ guppy localhost:6346
+or
+	$ guppy localhost 6346
+
+The first parameter is the hostname, you can use a plain IPv4 address
+as well. The second parameter respectively the value behind the colon
+is the destination port. You can also use the parameter -s to force
+a certain source port.
+guppy sends at maximum 3 pings to the remote host. It terminates after
+the first valid pong or when the timeout of 30 seconds exceeds.
+
+Here's an example of a successful ping:
+
+  $ guppy localhost:6346
+  D ping.c(97): Host "localhost" resolved to: "127.0.0.1"
+  D udp.c(544): recvfrom()=61 (from=127.0.0.1:6346)
+  D udp.c(252): Got pong (ip=127.0.0.1, port=6346, files=11297, kbs=2097151)
+  D udp.c(397): Daily Uptime: 46292 seconds
+  D udp.c(447): Vendor: "GTKG" char=4c
+  D udp.c(480): Extracted:
+          RTT:    1s
+          Peer:   127.0.0.1:6346
+
+  I ping.c(59): Received valid pong
+
+
+If the remote host doesn't respond, you'll see only something like this:
+
+  $ src/guppy localhost 1027
+  D ping.c(97): Host "localhost" resolved to: "127.0.0.1"
+  W ping.c(84): Timeout exceeded, no pong received
+
+If the parameter ``-c'' is used, guppy will add a GGEP SCP block to the
+ping. This means the remote will return a few cached peer addresses in
+the pong if it supports this feature. It's especially useful to ping a
+UDP host cache (UHC). An UHC might not respond if you don't use this
+parameter.
+
+To scan a remote host, use the parameter ``-x''. guppy will then ping
+all UDP ports 1-65535 in random order. It'll not terminate in this mode
+but wait indefinitely. The progress is indicated by a percentage counter.
+The ping rate is currently still hardcoded.
+
+Happy ping flooding!
+
+Last-Edited:	2005-08-29
+Author:		Christian Biere

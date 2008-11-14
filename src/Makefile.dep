@@ -1,0 +1,12 @@
+main.o: main.c lib/common.h lib/config.h lib/casts.h lib/debug.h \
+  lib/common.h lib/compat.h lib/oop.h lib/event_watcher.h \
+  lib/event_source.h lib/nettools.h lib/net_addr.h lib/append.h \
+  lib/nettools.h ping.h
+ping.o: ping.c ping.h lib/common.h lib/config.h lib/casts.h lib/debug.h \
+  lib/common.h lib/compat.h lib/event_watcher.h lib/event_source.h \
+  lib/append.h lib/nettools.h lib/net_addr.h lib/hashtable.h lib/list.h \
+  lib/node.h lib/dns.h udp.h lib/connection.h
+udp.o: udp.c udp.h lib/common.h lib/config.h lib/casts.h lib/debug.h \
+  lib/common.h lib/compat.h lib/connection.h lib/event_source.h \
+  lib/net_addr.h lib/event_watcher.h lib/append.h lib/nettools.h \
+  lib/ggep.h lib/guid.h lib/list.h lib/node.h lib/nettools.h lib/mem.h

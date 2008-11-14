@@ -1,0 +1,100 @@
+# You'll need a Bourne Shell, bash or ksh should work as well
+SHELL = /bin/sh
+
+OBJECTS =	\
+	main.o \
+	ping.o \
+	udp.o \
+
+# Leave the above line empty
+
+INCLUDES =	\
+	config.h \
+	ping.h \
+	udp.h \
+
+# Leave the above line empty
+
+LIB_SOURCES =	\
+	lib/base32.c \
+	lib/compat.c \
+	lib/connection.c \
+	lib/debug.c \
+	lib/dns.c \
+	lib/event_source.c \
+	lib/event_watcher.c \
+	lib/ggep.c \
+	lib/guid.c \
+	lib/hashlist.c \
+	lib/hashtable.c \
+	lib/list.c \
+	lib/mem.c \
+	lib/nettools.c \
+	lib/node.c \
+	lib/snode.c \
+
+# Leave the above line empty
+
+LIB_OBJECTS =	\
+	lib/base32.o \
+	lib/compat.o \
+	lib/connection.o \
+	lib/debug.o \
+	lib/dns.o \
+	lib/event_source.o \
+	lib/event_watcher.o \
+	lib/ggep.o \
+	lib/guid.o \
+	lib/hashlist.o \
+	lib/hashtable.o \
+	lib/list.o \
+	lib/mem.o \
+	lib/nettools.o \
+	lib/node.o \
+	lib/snode.o \
+
+# Leave the above line empty
+
+LIB_INCLUDES =	\
+	lib/base32.h \
+	lib/config.h \
+	lib/common.h \
+	lib/compat.h \
+	lib/connection.h \
+	lib/debug.h \
+	lib/dns.h \
+	lib/event_source.h \
+	lib/event_watcher.h \
+	lib/ggep.h \
+	lib/guid.h \
+	lib/hashlist.h \
+	lib/hashtable.h \
+	lib/list.h \
+	lib/mem.h \
+	lib/nettools.h \
+	lib/net_addr.h \
+	lib/node.h \
+	lib/oop.h \
+	lib/snode.h \
+
+# Leave the above line empty
+
+
+all:	guppy
+
+clean:
+	rm -f -- guppy $(OBJECTS)
+
+clobber: distclean
+
+distclean: clean
+
+lib::
+	cd lib && $(MAKE)
+
+guppy: $(INCLUDES) $(OBJECTS) $(LIB_SOURCES) $(LIB_INCLUDES) lib
+	$(CC) -o $@ $(OBJECTS) $(LIB_OBJECTS) $(LDFLAGS)
+
+install: guppy
+	cp guppy "$(bin_dir)"
+
