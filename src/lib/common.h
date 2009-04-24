@@ -478,7 +478,7 @@ typedef struct {
   /* This is not as paranoid as it seems. It prevents that config.h is
    * out-of-sync with the compiler resp. compiler flags. */
 
-  int x[
+  int x[1 + (
     STATIC_ASSERT_PLAIN(SIZEOF_CHAR  == sizeof(signed char)) ^
     STATIC_ASSERT_PLAIN(SIZEOF_SHORT == sizeof(signed short)) ^
     STATIC_ASSERT_PLAIN(SIZEOF_INT   == sizeof(signed int)) ^
@@ -533,7 +533,7 @@ typedef struct {
     STATIC_ASSERT_PLAIN( 1 == MAX(-1, 1)) ^
     STATIC_ASSERT_PLAIN( 0 == MIN(0, 2)) ^
     STATIC_ASSERT_PLAIN(-1 == MIN(-1, 1))
-  ];
+  )];
 } config_h_consistency_check;
 
 /* vi: set ai et ts=2 sts=2 sw=2 cindent: */

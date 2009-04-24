@@ -177,16 +177,16 @@ periodic_ping_handler(ev_watcher_t *watcher, const struct timeval *tv)
   static time_t first, last;
   time_t now = tv->tv_sec;
   static int ping_count = 0;
-  int d;
   
   (void) watcher;
 
-  if (!last)
-    first = last = now;
+  if (!last) {
+    first = now;
+    last = now;
+  }
   
-  d = difftime(now, last);
   if (ping_count < 3) {
-    if (0 == ping_count || d > (2 << ping_count)) {
+    if (0 == ping_count || difftime(now, last) > (2 << ping_count)) {
       last = now;
       send_ping(globals.dst_port);
       ping_count++;

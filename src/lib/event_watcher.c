@@ -532,32 +532,18 @@ ev_watcher_mainloop_kqueue(ev_watcher_t *w)
       if (!is_temporary_error(errno)) {
         WARN("kevent() failed: %s", compat_strerror(errno));
       }
-    } else if (ret > 0) {
-      struct timeval now;
+    } else {
       bool periodic = false;
       size_t i;
       
       RUNTIME_ASSERT(ret >= 0 && (size_t) ret <= w->num_sources);
-      compat_mono_time(&now);
+      compat_mono_time(&w->last_poll);
       
       for (i = 0; i < (size_t) ret; i++) {
         const struct kevent *base, *kev;
         
         base = w->ev_arr;
         kev = &base[i];
-
-#if 0
-         DBUG("kevent(): ident=%p filter=%lu flags=%lu fflags=%lu "
-           "data=%" PRId64 " udata=%p %s",
-           (void *) w->kevents[i].ident,
-           (unsigned long) w->kevents[i].filter,
-           (unsigned long) w->kevents[i].flags,
-           (unsigned long) w->kevents[i].fflags,
-           w->kevents[i].data,
-           (void *) w->kevents[i].udata,
-           w->kevents[i].flags & EV_EOF ? "EOF" : ""
-         );
-#endif
 
         if (EVFILT_TIMER == kev->filter) {
           RUNTIME_ASSERT(kev->ident == PTR2UINT(w));
@@ -567,7 +553,7 @@ ev_watcher_mainloop_kqueue(ev_watcher_t *w)
           pid_t pid;
 
           pid = kev->ident;
-          cb = (ev_watcher_process_cb_t) KEVENT_UDATA_TO_PTR(kev->udata);
+          cb = (ev_watcher_process_cb_t) cast_to_func_ptr(KEVENT_UDATA_TO_PTR(kev->udata));
           RUNTIME_ASSERT(cb != NULL);
           (*cb)(w, pid);
         } else {
@@ -609,7 +595,7 @@ ev_watcher_mainloop_kqueue(ev_watcher_t *w)
           }
         
           while (n-- > 0 && (ev & ev_source_get_eventmask(evs))) {
-            ev_source_event(evs, ev, &now);
+            ev_source_event(evs, ev, &w->last_poll);
             if (ev_source_is_closed(evs))
               break;
           }
@@ -617,24 +603,25 @@ ev_watcher_mainloop_kqueue(ev_watcher_t *w)
  
       }
 
-      if (periodic && w->periodic_cb) {
-        w->periodic_cb(w, &now);
-      }
-    
-    } else if (0 == w->num_sources && 0 != w->timeout) {
-      struct kevent kev;
+      if (0 == ret && 0 == w->num_sources && 0 != w->timeout) {
+        struct kevent kev;
 
-      ret = kevent(w->ev_fd, NULL, 0, &kev, 1, NULL);
-      switch (ret) {
-      case 0: break;
-      case -1:
-        WARN("kevent() failed: %s", compat_strerror(errno));
-        break;
-      default:  
-        if (EVFILT_TIMER == kev.filter && w->periodic_cb) {
-          RUNTIME_ASSERT(kev.ident == PTR2UINT(w));
-          w->periodic_cb(w, &w->last_poll);
+        ret = kevent(w->ev_fd, NULL, 0, &kev, 1, NULL);
+        switch (ret) {
+        case 0: break;
+        case -1:
+          WARN("kevent() failed: %s", compat_strerror(errno));
+          break;
+        default:  
+          if (EVFILT_TIMER == kev.filter && w->periodic_cb) {
+            RUNTIME_ASSERT(kev.ident == PTR2UINT(w));
+            periodic = true;
+          }
         }
+      }
+
+      if (periodic && w->periodic_cb) {
+        w->periodic_cb(w, &w->last_poll);
       }
     }
   }

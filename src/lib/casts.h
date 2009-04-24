@@ -59,6 +59,19 @@ cast_to_const_char_ptr(const void *p)
   return p;
 }
 
+typedef void (*func_ptr_t)();
+
+static inline func_ptr_t
+cast_to_func_ptr(const void *p)
+{
+  union {
+    const void *p;
+    func_ptr_t f;
+  } u;
+  u.p = p;
+  return u.f;
+}
+
 static inline /* XXX ptrdiff_t */ long
 ptr_diff(const void *a, const void *b)
 {

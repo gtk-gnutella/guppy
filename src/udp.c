@@ -234,8 +234,8 @@ udp_send_crawler_ping(net_addr_t addr, in_port_t port)
   p = append_chars(p, &left, vmsg_data, sizeof vmsg_data);
   p = append_chars(p, &left,
         cast_to_const_char_ptr(&vmsg_head), sizeof vmsg_head);
-  p = append_char(p, &left, 0xff); /* Number of Ultrapeers */
-  p = append_char(p, &left, 0xff); /* Number of Leaves */
+  p = append_char(p, &left, 0xffU); /* Number of Ultrapeers */
+  p = append_char(p, &left, 0xffU); /* Number of Leaves */
   p = append_char(p, &left,        /* Format */
         0x00 | /* Plain */
         0x01 | /* Connection time */

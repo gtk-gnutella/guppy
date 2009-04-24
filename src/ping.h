@@ -32,9 +32,9 @@
 #include "lib/event_watcher.h"
 
 enum {
-  PING_F_SCP      = (1 << 0),
-  PING_F_SCAN     = (1 << 1),
   PING_F_CRAWLER  = (1 << 2),
+  PING_F_SCAN     = (1 << 1),
+  PING_F_SCP      = (1 << 0)
 };
 
 int ping_init(ev_watcher_t *s, const char *hostname, in_port_t port,

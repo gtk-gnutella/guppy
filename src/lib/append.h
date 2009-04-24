@@ -203,7 +203,7 @@ append_escaped_chars(char *dst, size_t *size, const char *src, size_t len)
 }
 
 static inline char *
-append_char(char *dst, size_t *size, char c)
+append_char(char *dst, size_t *size, unsigned char c)
 {
   RUNTIME_ASSERT(dst != NULL);
   RUNTIME_ASSERT(size != NULL);

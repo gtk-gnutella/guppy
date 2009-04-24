@@ -32,7 +32,7 @@
 #include "oop.h"
 
 typedef enum ev_source_magic {
-  EV_SOURCE_MAGIC = 0x928a3707
+  EV_SOURCE_MAGIC = 0x228a3707
 } ev_source_magic_t;
 
 struct ev_source {
