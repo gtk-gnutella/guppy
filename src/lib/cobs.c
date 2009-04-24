@@ -24,7 +24,7 @@ main(void)
   size_t i;
 
   srandom(time(NULL) ^ getpid() ^ getppid() ^ getuid());
-  
+
   for (;;) {
     char buf[4096];
     size_t n;
