@@ -43,6 +43,7 @@ typedef enum {
   GGEP_ID_AUTH,
   GGEP_ID_BH,
   GGEP_ID_CT,
+  GGEP_ID_DHT,
   GGEP_ID_DU,
   GGEP_ID_GTKG_IPP6,
   GGEP_ID_GTKG_IPV6,

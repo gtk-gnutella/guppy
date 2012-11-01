@@ -32,6 +32,7 @@
 #include "lib/event_watcher.h"
 
 enum {
+  PING_F_IP       = (1 << 3),
   PING_F_CRAWLER  = (1 << 2),
   PING_F_SCAN     = (1 << 1),
   PING_F_SCP      = (1 << 0)

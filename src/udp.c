@@ -100,7 +100,8 @@ udp_send_packet(const net_addr_t addr, in_port_t port,
 }
 
 void
-udp_send_ping(net_addr_t addr, in_port_t port, bool with_ggep_scp)
+udp_send_ping(net_addr_t addr, in_port_t port,
+  bool with_ggep_scp, bool with_ggep_ip)
 {
   static const char ping_data[] = {
     /* 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,*/ /* GUID */
@@ -150,7 +151,7 @@ udp_send_ping(net_addr_t addr, in_port_t port, bool with_ggep_scp)
   p = append_chars(p, &left, ping_data, sizeof ping_data);
 
   /* Payload follows */
-  if (with_ggep_scp) {
+  if (with_ggep_scp || with_ggep_ip) {
     uint8_t pref;
     ggep_t gtx;
 
@@ -160,8 +161,13 @@ udp_send_ping(net_addr_t addr, in_port_t port, bool with_ggep_scp)
      * for either ultrapeers or leaves
      */ 
     
-    pref = 1; /* Prefer for ultrapeers */
-    ggep_pack(&gtx, GGEP_ID_SCP, 0, cast_to_const_void_ptr(&pref), 1);
+    if (with_ggep_scp) {
+      pref = 1; /* Prefer for ultrapeers */
+      ggep_pack(&gtx, GGEP_ID_SCP, 0, cast_to_const_void_ptr(&pref), 1);
+    }
+    if (with_ggep_ip) {
+      ggep_pack(&gtx, GGEP_ID_IP, 0, NULL, 0);
+    }
     len = ggep_end(&gtx);
     RUNTIME_ASSERT(left >= len);
     left -= len;
@@ -457,6 +463,30 @@ handle_packet(connection_t *c, const char *data, size_t len,
       DBUG("Peer supports TLS");
       break;
 
+    case GGEP_ID_IP:
+      if (0 == data_len) {
+        DBUG("Empty IP extension in reply?");
+      } else if (6 == data_len) {
+        in_addr_t ip;
+        in_port_t port;
+            
+        memcpy(&ip, &p[0], sizeof ip);
+        port = peek_le16(&p[4]);
+        print_ipv4_addr(addr_buf, sizeof addr_buf, ip);
+        DBUG("Echoed IP: %s:%u", addr_buf, port);
+      } else if (18 == data_len) {
+        net_addr_t addr;
+        in_port_t port;
+
+        addr = net_addr_peek_ipv6(p);
+        port = peek_le16(&p[16]);
+        print_net_addr(addr_buf, sizeof addr_buf, addr);
+        DBUG("Echoed IP: %s:%u", addr_buf, port);
+      } else {
+        DBUG("IP payload length (%lu) is invalid", (unsigned long) data_len);
+      }
+      break;
+
     case GGEP_ID_GTKG_IPV6:
       if (0 == data_len) {
         DBUG("Peer supports IPv6");
@@ -564,6 +594,22 @@ handle_packet(connection_t *c, const char *data, size_t len,
       }
       break;
 
+    case GGEP_ID_DHT:
+#if 1
+      DBUG("Node supports DHT");
+#endif
+      if (data_len > 0) {
+        char buf[64], *q;
+        size_t left = sizeof buf - 1;
+
+        q = append_escaped_chars(buf, &left, p, data_len);
+        *q = '\0';
+#if 1
+        DBUG("DHT payload: \"%s\"", buf);
+#endif
+      }
+      break;
+
     case GGEP_ID_DU:
       if (data_len > 4) {
         DBUG("Invalid length of DU payload: data_len=%lu", (unsigned long) data_len);
@@ -647,7 +693,8 @@ handle_packet(connection_t *c, const char *data, size_t len,
       break;
 
     default:
-      DBUG("Unhandled GGEP ID: \"%s\"", id_name);
+      DBUG("Unhandled GGEP ID: \"%s\" (payload of %lu byte%s)",
+        id_name, data_len, 1 == data_len ? "" : "s");
     }
 
   }

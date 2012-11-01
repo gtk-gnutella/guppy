@@ -39,7 +39,8 @@ struct peer_set {
 };
 
 int udp_init(ev_watcher_t *watcher, connection_t *udp_con);
-void udp_send_ping(const net_addr_t addr, in_port_t port, bool with_ggep_scp);
+void udp_send_ping(const net_addr_t addr, in_port_t port,
+  bool with_ggep_scp, bool with_ggep_ip);
 void udp_send_crawler_ping(const net_addr_t addr, in_port_t port);
 void udp_set_pong_callback(void (*cb)(const net_addr_t *, in_port_t, void *));
 

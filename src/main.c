@@ -47,11 +47,12 @@ static void
 usage(void)
 {
   printf(
-    "Usage:\tguppy [-c] [-s source_port] [host:port | host port]\n"
+    "Usage:\tguppy [-ci] [-s source_port] [host:port | host port]\n"
     "      \tguppy -h\n"
     "\n"
     "-c\tSend a SCP ping.\n"
     "-h\tShow this usage information.\n"
+    "-i\tSend an IP ping.\n"
     "-s\tBind the UDP socket to the supplied port.\n"
     "-v\tPrint version information.\n"
   );
@@ -69,7 +70,7 @@ process_args(int argc, char ** const argv)
   RUNTIME_ASSERT(argc > 0);
   RUNTIME_ASSERT(argv);
   
-  while ((c = getopt(argc, argv, "Cchs:vx")) != -1) {
+  while ((c = getopt(argc, argv, "Cchis:vx")) != -1) {
     switch (c) {
     case 'c':
       ping_flags |= PING_F_SCP;
@@ -81,6 +82,10 @@ process_args(int argc, char ** const argv)
       
     case 'h':
       usage();
+      break;
+
+    case 'i':
+      ping_flags |= PING_F_IP;
       break;
 
     case 's':

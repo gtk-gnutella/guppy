@@ -38,6 +38,7 @@ static struct {
   net_addr_t dst_addr;
   in_port_t dst_port;
   bool with_ggep_scp;
+  bool with_ggep_ip;
   bool crawler_ping;
 } globals;
 
@@ -64,7 +65,8 @@ send_ping(in_port_t port)
   if (globals.crawler_ping) {
     udp_send_crawler_ping(globals.dst_addr, port);
   } else {
-    udp_send_ping(globals.dst_addr, port, globals.with_ggep_scp);
+    udp_send_ping(globals.dst_addr, port,
+      globals.with_ggep_scp, globals.with_ggep_ip);
   }
 }
 
@@ -315,6 +317,7 @@ ping_init(ev_watcher_t *watcher, const char *hostname, in_port_t port,
   RUNTIME_ASSERT((PING_F_SCAN & flags) || port != 0);
 
   globals.with_ggep_scp = 0 != (flags & PING_F_SCP);
+  globals.with_ggep_ip = 0 != (flags & PING_F_IP);
   globals.crawler_ping = 0 != (flags & PING_F_CRAWLER);
 
   if (
