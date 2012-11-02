@@ -34,6 +34,8 @@
 #include "lib/nettools.h"
 #include "lib/mem.h"
 
+#define IS_POWER_OF_2(x) ((x) && 0 == ((x) & ((x) - 1)))
+
 static connection_t *udp_con;
 static void (*udp_pong_cb)(const net_addr_t *addr, in_port_t, void *);
 
@@ -384,6 +386,12 @@ handle_packet(connection_t *c, const char *data, size_t len,
       print_ipv4_addr(addr_buf, sizeof addr_buf, ip);
       DBUG("Got %spong (ip=%s, port=%u, files=%lu, kbs=%lu)",
         len == 37 ? "bare " : "", addr_buf, pong_port, files, kbs);
+
+      if (IS_POWER_OF_2(kbs)) {
+        DBUG("Kbs is a power of 2 (remote probably runs as UP)");
+      } else {
+        DBUG("Kbs not a power of 2 (remote probably runs as leaf)");
+      }
       
       p = &data[37];
     }
@@ -675,7 +683,8 @@ handle_packet(connection_t *c, const char *data, size_t len,
         memcpy((char *) &vc, p, 4);
         q = append_escaped_chars(vendor, &left, p, data_len);
         *q = '\0';
-        DBUG("Vendor: \"%s\" char=%02x", vendor, (unsigned char) p[4]);
+        DBUG("Vendor: \"%s\" char=%02x (%u)", vendor,
+          (unsigned char) p[4], (unsigned) p[4] & 0xff);
       }
 
       has_vc = true;
@@ -684,8 +693,14 @@ handle_packet(connection_t *c, const char *data, size_t len,
     case GGEP_ID_UP:
       if (data_len == 3) {
 #if 1
-        DBUG("Free slots: %u/%u (UP/Leaf) char=%02x",
-            (unsigned char) p[1], (unsigned char) p[2], (unsigned char) p[0]);
+        /*
+         * LimeWire always got the initial specs wrong, and GTKG adapted to
+         * these as well.  The amount of leaf slots in p[1], the amount of
+         * ultra slots is p[2], whereas the specs said it was the other way
+         * round.   --RAM, 2012-11-02.
+         */
+        DBUG("Free slots: %u/%u (UP/Leaf) version=%u",
+          (unsigned char) p[2], (unsigned char) p[1], (unsigned) p[0] & 0xff);
 #endif
       } else {
         DBUG("Invalid length for UP (len=%lu)", (unsigned long) data_len);
@@ -694,7 +709,7 @@ handle_packet(connection_t *c, const char *data, size_t len,
 
     default:
       DBUG("Unhandled GGEP ID: \"%s\" (payload of %lu byte%s)",
-        id_name, data_len, 1 == data_len ? "" : "s");
+        id_name, (unsigned long) data_len, 1 == data_len ? "" : "s");
     }
 
   }
