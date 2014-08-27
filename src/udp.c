@@ -318,7 +318,6 @@ handle_packet(connection_t *c, const char *data, size_t len,
   net_addr_t pong_addr = net_addr_unspecified;
   in_port_t pong_port = 0;
   char vendor[5] = { 0, 0, 0, 0, 0 };
-  bool host_is_udphc = false;
   bool has_scp = false;
   bool has_vc = false;  /* set if there was a GGEP VC block */
   uint32_t vc = 0;  /* vendor code */
@@ -442,11 +441,10 @@ handle_packet(connection_t *c, const char *data, size_t len,
     case GGEP_ID_UDPHC:
       {
 
-        host_is_udphc = true;
         if (data_len == 0) {
           DBUG("UDPHC: No hostname given");
         } else {
-          char host[256 + 1], *ep;
+          char host[256 + 1];
           size_t n = sizeof host;
           bool truncated = false;
 
@@ -457,7 +455,7 @@ handle_packet(connection_t *c, const char *data, size_t len,
             truncated = true;
           }
 
-          ep = append_string(host, &n, p);
+          (void) append_string(host, &n, p);
           if (n > 1) {
             DBUG("UDPHC: Hostname contained NUL (size=%lu)", (unsigned long) n);
           }
