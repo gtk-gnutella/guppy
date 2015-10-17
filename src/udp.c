@@ -292,8 +292,10 @@ handle_vmsg(const char *data, size_t size)
 
     p = append_escaped_chars(p, &avail,
           cast_to_const_void_ptr(vmsg_head->vendor_id), 4);
-    DBUG("Vendor ID: \"%s\", Selector=0x%04x, Version=0x%04x",
-      buf, (unsigned) selector, (unsigned) version);
+	append_char(p, &avail, '\0');
+    DBUG("Vendor ID: \"%s\", Selector=0x%04x, Version=0x%04x (%lu byte%s)",
+      buf, (unsigned) selector, (unsigned) version, (unsigned long) size,
+	  1 == size ? "" : "s");
   }
 
   if (
