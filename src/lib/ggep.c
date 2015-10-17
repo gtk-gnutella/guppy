@@ -463,6 +463,7 @@ static const struct {
 #define GGEP_VENDOR_ID(v, x) GGEP_ID_(#v "." #x, GGEP_ID_ ## v ## _ ## x)
   
   { "",  GGEP_ID_INVALID,  1 },  /* GGEP_ID_INVALID */
+  GGEP_ID(6),
   { "<", GGEP_ID_LIME_XML, 1 },  /* GGEP_ID_LIME_XML */
   GGEP_ID(ALT),
   GGEP_ID(AUTH),

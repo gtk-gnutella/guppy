@@ -494,6 +494,7 @@ handle_packet(connection_t *c, const char *data, size_t len,
       break;
 
     case GGEP_ID_GTKG_IPV6:
+    case GGEP_ID_6:
       if (0 == data_len) {
         DBUG("Peer supports IPv6");
       } else if (data_len >= 16) {
@@ -501,10 +502,10 @@ handle_packet(connection_t *c, const char *data, size_t len,
           
           addr = net_addr_peek_ipv6(p);
           print_net_addr(addr_buf, sizeof addr_buf, addr);
-          DBUG("GTKG.IPV6: %s", addr_buf);
+          DBUG("IPV6 address found in GGEP \"%s\": %s", id_name, addr_buf);
       } else {
-        DBUG("GTKG.IPV6 payload length (%lu) is too small",
-          (unsigned long) data_len);
+        DBUG("GGEP \"%s\": payload length (%lu) is too small",
+          id_name, (unsigned long) data_len);
       }
       break;
       

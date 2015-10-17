@@ -38,6 +38,7 @@
 typedef enum {
   GGEP_ID_INVALID = 0, /* Not a valid ID, used for errors */
   
+  GGEP_ID_6,
   GGEP_ID_LIME_XML, /* "<" */
   GGEP_ID_ALT,
   GGEP_ID_AUTH,
