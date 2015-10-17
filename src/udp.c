@@ -400,7 +400,7 @@ handle_packet(connection_t *c, const char *data, size_t len,
   
   case GNET_P_VMSG:
     handle_vmsg(data, len);
-    break;
+    goto skip_ggep;		/* No GGEP expected */
   case GNET_P_PUSH:
   case GNET_P_QASK:
   case GNET_P_QHIT:
@@ -715,8 +715,11 @@ handle_packet(connection_t *c, const char *data, size_t len,
 
   }
 
+skip_ggep:
+
   switch (function) {
   case GNET_P_PONG: 
+  case GNET_P_VMSG:
     {
       guid_t guid;
       bool is_magic, ip_match = true, port_match = true, is_dupe = false;
@@ -756,12 +759,16 @@ handle_packet(connection_t *c, const char *data, size_t len,
       if (
         !ip_match ||
         (
+		  GNET_P_PONG == function &&
           !net_addr_equal(pong_addr, sender_addr) &&
           !net_addr_equal(pong_addr, net_addr_unspecified)
         )
       ) {
         DBUG("Address mismatch");
-      } else if (!port_match || sender_port != pong_port) {
+      } else if (
+        !port_match ||
+        (GNET_P_PONG == function && sender_port != pong_port)
+      ) {
         DBUG("Port mismatch");
       } else if (is_dupe) {
         DBUG("Sender resent pong(?)");
