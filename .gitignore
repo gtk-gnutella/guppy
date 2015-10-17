@@ -1,0 +1,10 @@
+# ignore objects and archives, anywhere in the tree.
+*.[oa]
+
+# generated files
+config.h
+src/config.h
+src/lib/config.h
+src/Makefile
+src/lib/Makefile
+config_test*
